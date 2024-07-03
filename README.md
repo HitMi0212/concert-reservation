@@ -1,73 +1,53 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Consert Reservation API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 요구사항
+- 아래 5가지 API 를 구현합니다.
+    - 유저 토큰 발급 API
+    - 예약 가능 날짜 / 좌석 API
+    - 좌석 예약 요청 API
+    - 잔액 충전 / 조회 API
+    - 결제 API
+- 각 기능 및 제약사항에 대해 단위 테스트를 반드시 하나 이상 작성하도록 합니다.
+- 다수의 인스턴스로 어플리케이션이 동작하더라도 기능에 문제가 없도록 작성하도록 합니다.
+- 동시성 이슈를 고려하여 구현합니다.
+- 대기열 개념을 고려해 구현합니다.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## API Spec
 
-## Description
+**1️⃣ `주요` 유저 대기열 토큰 기능**
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- 서비스를 이용할 토큰을 발급받는 API를 작성합니다.
+- 토큰은 유저의 UUID 와 해당 유저의 대기열을 관리할 수 있는 정보 ( 대기 순서 or 잔여 시간 등 ) 를 포함합니다.
+- 이후 모든 API 는 위 토큰을 이용해 대기열 검증을 통과해야 이용 가능합니다.
 
-## Installation
+> 기본적으로 폴링으로 본인의 대기열을 확인한다고 가정하며, 다른 방안 또한 고려해보고 구현해 볼 수 있습니다.
+> 
 
-```bash
-$ npm install
-```
+**2️⃣ `기본` 예약 가능 날짜 / 좌석 API**
 
-## Running the app
+- 예약가능한 날짜와 해당 날짜의 좌석을 조회하는 API 를 각각 작성합니다.
+- 예약 가능한 날짜 목록을 조회할 수 있습니다.
+- 날짜 정보를 입력받아 예약가능한 좌석정보를 조회할 수 있습니다.
 
-```bash
-# development
-$ npm run start
+> 좌석 정보는 1 ~ 50 까지의 좌석번호로 관리됩니다.
+> 
 
-# watch mode
-$ npm run start:dev
+**3️⃣ `주요` 좌석 예약 요청 API**
 
-# production mode
-$ npm run start:prod
-```
+- 날짜와 좌석 정보를 입력받아 좌석을 예약 처리하는 API 를 작성합니다.
+- 좌석 예약과 동시에 해당 좌석은 그 유저에게 약 (예시 : 5분)간 임시 배정됩니다. ( 시간은 정책에 따라 자율적으로 정의합니다. )
+- 만약 배정 시간 내에 결제가 완료되지 않는다면 좌석에 대한 임시 배정은 해제되어야 하며 만약 임시배정된 상태라면 다른 사용자는 예약할 수 없어야 한다.
 
-## Test
+**4️⃣ `기본` 잔액 충전 / 조회 API**
 
-```bash
-# unit tests
-$ npm run test
+- 결제에 사용될 금액을 API 를 통해 충전하는 API 를 작성합니다.
+- 사용자 식별자 및 충전할 금액을 받아 잔액을 충전합니다.
+- 사용자 식별자를 통해 해당 사용자의 잔액을 조회합니다.
 
-# e2e tests
-$ npm run test:e2e
+**5️⃣ `주요` 결제 API**
 
-# test coverage
-$ npm run test:cov
-```
+- 결제 처리하고 결제 내역을 생성하는 API 를 작성합니다.
+- 결제가 완료되면 해당 좌석의 소유권을 유저에게 배정하고 대기열 토큰을 만료시킵니다.
 
-## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
 
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
