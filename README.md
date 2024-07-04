@@ -91,3 +91,6 @@ sequenceDiagram
   P-->>-U: 결제 정보 반환
 ```
 
+## ERD
+![alt text](HHPLUS.png)
+
