@@ -12,42 +12,485 @@
 - 동시성 이슈를 고려하여 구현합니다.
 - 대기열 개념을 고려해 구현합니다.
 
-## API Spec
+## Sequence Diagram
 
-**1️⃣ `주요` 유저 대기열 토큰 기능**
+### 유저 토큰 발급 API
 
-- 서비스를 이용할 토큰을 발급받는 API를 작성합니다.
-- 토큰은 유저의 UUID 와 해당 유저의 대기열을 관리할 수 있는 정보 ( 대기 순서 or 잔여 시간 등 ) 를 포함합니다.
-- 이후 모든 API 는 위 토큰을 이용해 대기열 검증을 통과해야 이용 가능합니다.
+```mermaid
+sequenceDiagram
+  Actor U as User
+  participant T as TokenService
+  participant W as WaitingService
+  U->>T: 토큰 발급 요청
+  T->>+W: 현재 대기열 조회
+  W-->>-T: 현재 대기열 정보 반환
+  T->>T: 유저 정보로 토큰 생성
+```
 
-> 기본적으로 폴링으로 본인의 대기열을 확인한다고 가정하며, 다른 방안 또한 고려해보고 구현해 볼 수 있습니다.
-> 
+### 예약 가능 날짜 / 좌석 API
 
-**2️⃣ `기본` 예약 가능 날짜 / 좌석 API**
+```mermaid
+sequenceDiagram
+  Actor U as User
+  participant C as ConsertService
+  participant S as SeatService
+  U->>+C: 예약 가능 날짜 조회 요청
+  C-->>-U: 예약 가능 날짜 반환
+  U->>+C: 선택한 날짜에 예약 가능한 좌석 조회 요청
+  C->>+S: 예약 가능 좌석 조회
+  S-->>-C: 예약 가능 좌석 반환
+  C-->>-U: 예약 가능 좌석 반환
+```
 
-- 예약가능한 날짜와 해당 날짜의 좌석을 조회하는 API 를 각각 작성합니다.
-- 예약 가능한 날짜 목록을 조회할 수 있습니다.
-- 날짜 정보를 입력받아 예약가능한 좌석정보를 조회할 수 있습니다.
+### 잔액 충전 / 조회 API
 
-> 좌석 정보는 1 ~ 50 까지의 좌석번호로 관리됩니다.
-> 
+```mermaid
+sequenceDiagram
+  Actor U as User
+  participant S as AmountService
+  U->>+S: 잔액 조회
+  S-->>-U: 잔액 반환
+  U->>+S: 잔액 충전 요청
+  S-->>-U: 충전 결과 반환
+```
 
-**3️⃣ `주요` 좌석 예약 요청 API**
+### 좌석 예약 요청 API
 
-- 날짜와 좌석 정보를 입력받아 좌석을 예약 처리하는 API 를 작성합니다.
-- 좌석 예약과 동시에 해당 좌석은 그 유저에게 약 (예시 : 5분)간 임시 배정됩니다. ( 시간은 정책에 따라 자율적으로 정의합니다. )
-- 만약 배정 시간 내에 결제가 완료되지 않는다면 좌석에 대한 임시 배정은 해제되어야 하며 만약 임시배정된 상태라면 다른 사용자는 예약할 수 없어야 한다.
+```mermaid
+sequenceDiagram
+  Actor U as User
+  participant S as SeatService
+  participant R as ReservationService
+  U->>S: 좌석 선택
+  S->>+R: 해당 좌석 예약 정보 조회
+  R-->>-S: 좌석 예약 정보 반환
+  alt 예약 가능한 좌석
+	  R->>R: 좌석 예약
+	  R-->>S: 좌석 예약 완료
+	else 이미 선택중인 좌석
+	  S-->>U: 좌석 예약 실패
+	end
+```
 
-**4️⃣ `기본` 잔액 충전 / 조회 API**
+### 결제 API
 
-- 결제에 사용될 금액을 API 를 통해 충전하는 API 를 작성합니다.
-- 사용자 식별자 및 충전할 금액을 받아 잔액을 충전합니다.
-- 사용자 식별자를 통해 해당 사용자의 잔액을 조회합니다.
+```mermaid
+sequenceDiagram
+  Actor U as User
+  participant P as PaymentService
+  participant S as SeatService
+  participant A as AmoutService
+  U->>+P: 결제 요청
+  P->>+S: 좌석 예약 확인
+  S-->>-P: 좌석 예약 정보 반환
+  P->>+A: 유저 잔액 확인
+  A-->>-P: 유저 잔액 정보 반환
+  P->>P: 결제 정보 생성
+  P-->>S: 좌석 예약 상태 해제
+  P-->>A: 유저 잔액 차감
+  P-->>-U: 결제 정보 반환
+```
 
-**5️⃣ `주요` 결제 API**
+## ERD
+![alt text](HHPLUS.png)
 
-- 결제 처리하고 결제 내역을 생성하는 API 를 작성합니다.
-- 결제가 완료되면 해당 좌석의 소유권을 유저에게 배정하고 대기열 토큰을 만료시킵니다.
+## API DOCS
 
+### 콘서트 목록 조회
+`GET /consert`
+- 콘서트 목록을 조회
 
+**Example Request**
+```
+GET /consert HTTP/1.1
+Host: {{url}}
+```
 
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": [
+    {
+        consertId: 1,
+        consertName: "에스파 콘서트",
+        seats: 50,
+        consertDate: "2024-07-08 18:00:00"
+    },
+    {
+        consertId: 2,
+        consertName: "뉴진스 콘서트",
+        seats: 50,
+        consertDate: "2024-07-09 15:00:00"
+    }
+  ]
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+}
+```
+
+### 입력한 날짜의 콘서트 목록 조회
+`GET /consert/:date`
+- 입력한 날짜에 진행하는 콘서트 목록을 조회
+
+**Parameter**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| date | string | 콘서트 날짜 |
+
+**Example Request**
+```
+GET /consert/2024-07-08 18:00:00 HTTP/1.1
+Host: {{url}}
+```
+
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": [
+    {
+        consertId: 1,
+        consertName: "에스파 콘서트",
+        seats: 50,
+        consertDate: "2024-07-08 18:00:00"
+    }
+  ]
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "해당 날짜에 예약 가능한 콘서트가 없습니다."
+}
+```
+
+### 예약 가능 좌석 조회
+`GET /consert/seat/:id`
+- 입력한 날짜에 진행하는 콘서트 목록을 조회
+
+**Parameter**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| id | number | 콘서트ID |
+
+**Example Request**
+```
+GET /consert/seat/:id HTTP/1.1
+Host: {{url}}
+```
+
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": [
+    {
+        seatId: 1,
+        consertId: 1,
+        price: 50000,
+        payment: "N"
+    }
+  ]
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "예약 가능한 좌석이 없습니다."
+}
+```
+
+### 사용자 잔액 조회
+`GET /amount/:id`
+- 사용자 잔액 조회
+
+**Authorization**  
+`Bearer {userToken}`
+
+**Parameter**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| id | number | 사용자ID |
+
+**Example Request**
+```
+GET /amount/12 HTTP/1.1
+Host: {{url}}
+```
+
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": {
+    userId: 12,
+    userName: "최승준",
+    amount: 15000
+   }
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "해당 사용자 정보가 없습니다."
+}
+```
+
+### 사용자 잔액 충전
+`PATCH /amount/charge`
+- 사용자 잔액 조회
+
+**Authorization**  
+`Bearer {userToken}`
+
+**Request Body**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| id | number | 사용자ID |
+| amount | number | 충전할 금액 |
+
+**Example Request**
+```
+PATCH /amount/charge HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+Content-Length: 36
+
+{
+    id: 12,
+    amount: 40000
+}
+```
+
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": {
+    userId: 12,
+    userName: "최승준",
+    amount: 15000
+   }
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "해당 사용자 정보가 없습니다."
+}
+```
+
+### 사용자 토큰 발급
+`POST /token/issu`
+- 사용자 토큰 발급
+
+**Request Body**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| id | number | 사용자ID |
+
+**Example Request**
+```
+POST /token/issu HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+Content-Length: 39
+
+{
+    userId: 12
+}
+```
+
+**Example Response**
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+  "statusCode": 201,
+  "message" : "Created",
+  "data": {
+    userId: 12,
+    userToken: "...",
+    issueDate: 2024-07-04 21:00:23
+   }
+}
+```
+```
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{
+  "statusCode": 402,
+  "message" : "Forbidden"
+  "error" : "해당 사용자 정보가 없습니다."
+}
+```
+
+### 좌석예약
+`POST /reservation/seat`
+- 좌석 임시 예약
+
+**Authorization**  
+`Bearer {userToken}`
+
+**Request Body**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| userId | number | 사용자ID |
+| consertId | number | 콘서트ID |
+| seatId | number | 좌석ID |
+
+**Example Request**
+```
+POST /reservation/seat HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+Content-Length: 56
+
+{
+    userId: 12,
+    consertId: 1,
+    seatId: 11
+}
+```
+
+**Example Response**
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "statusCode": 200,
+  "message" : "success",
+  "data": {
+    userId: 12,
+    consertId: 1,
+    seatId: 11,
+    reservationDate: "2024-07-03 11:46:23"
+  }
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "해당 좌석 정보가 없습니다."
+}
+```
+```
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+
+{
+  "statusCode": 409,
+  "message" : "Conflict"
+  "error" : "이미 선택중인 좌석입니다."
+}
+```
+
+### 결제
+`POST /consert/payment`
+- 콘서트 좌석 결제
+
+**Authorization**  
+`Bearer {userToken}`
+
+**Request Body**
+| 키 | 타입 | 설명 |
+| --- | --- | --- |
+| userId | number | 사용자ID |
+| consertId | number | 콘서트ID |
+| seatId | number | 좌석ID |
+
+**Example Request**
+```
+POST /reservation/seat HTTP/1.1
+Host: {{url}}
+Content-Type: application/json
+Content-Length: 56
+
+{
+    userId: 12,
+    consertId: 1,
+    seatId: 11
+}
+```
+
+**Example Response**
+```
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{
+  "statusCode": 201,
+  "message" : "Created",
+  "data": {
+    paymentId; 1,
+    userId: 12,
+    consertId: 1,
+    seatId: 11,
+    consertName: "에스파 콘서트",
+    consertDate: "2024-07-08",
+    price: 50000,
+    paymentDate: "2024-07-03"
+  }
+}
+```
+```
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "statusCode": 404,
+  "message" : "Not Found"
+  "error" : "해당 콘서트 좌석 정보가 없습니다."
+}
+```
