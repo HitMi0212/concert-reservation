@@ -1,4 +1,4 @@
-# Consert Reservation API
+# Concert Reservation API
 
 ## 요구사항
 - 아래 5가지 API 를 구현합니다.
@@ -32,7 +32,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
   Actor U as User
-  participant C as ConsertService
+  participant C as ConcertService
   participant S as SeatService
   U->>+C: 예약 가능 날짜 조회 요청
   C-->>-U: 예약 가능 날짜 반환
@@ -95,14 +95,15 @@ sequenceDiagram
 ![alt text](HHPLUS.png)
 
 ## API DOCS
+[POSTMAN API DOCS](https://documenter.getpostman.com/view/36695726/2sA3dxCrRx)
 
 ### 콘서트 목록 조회
-`GET /consert`
+`GET /concerts`
 - 콘서트 목록을 조회
 
 **Example Request**
 ```
-GET /consert HTTP/1.1
+GET /concerts HTTP/1.1
 Host: {{url}}
 ```
 
@@ -116,16 +117,22 @@ Content-Type: application/json
   "message" : "success",
   "data": [
     {
-        consertId: 1,
-        consertName: "에스파 콘서트",
+        concert
+      Id: 1,
+        concert
+      Name: "에스파 콘서트",
         seats: 50,
-        consertDate: "2024-07-08 18:00:00"
+        concert
+      Date: "2024-07-08 18:00:00"
     },
     {
-        consertId: 2,
-        consertName: "뉴진스 콘서트",
+        concert
+      Id: 2,
+        concert
+      Name: "뉴진스 콘서트",
         seats: 50,
-        consertDate: "2024-07-09 15:00:00"
+        concert
+      Date: "2024-07-09 15:00:00"
     }
   ]
 }
@@ -141,7 +148,7 @@ Content-Type: application/json
 ```
 
 ### 입력한 날짜의 콘서트 목록 조회
-`GET /consert/:date`
+`GET /concerts/:date`
 - 입력한 날짜에 진행하는 콘서트 목록을 조회
 
 **Parameter**
@@ -151,7 +158,7 @@ Content-Type: application/json
 
 **Example Request**
 ```
-GET /consert/2024-07-08 18:00:00 HTTP/1.1
+GET /concerts/2024-07-08 18:00:00 HTTP/1.1
 Host: {{url}}
 ```
 
@@ -165,10 +172,13 @@ Content-Type: application/json
   "message" : "success",
   "data": [
     {
-        consertId: 1,
-        consertName: "에스파 콘서트",
+        concert
+      Id: 1,
+        concert
+      Name: "에스파 콘서트",
         seats: 50,
-        consertDate: "2024-07-08 18:00:00"
+        concert
+      Date: "2024-07-08 18:00:00"
     }
   ]
 }
@@ -185,7 +195,7 @@ Content-Type: application/json
 ```
 
 ### 예약 가능 좌석 조회
-`GET /consert/seat/:id`
+`GET /concerts/seats/:id`
 - 입력한 날짜에 진행하는 콘서트 목록을 조회
 
 **Parameter**
@@ -195,7 +205,7 @@ Content-Type: application/json
 
 **Example Request**
 ```
-GET /consert/seat/:id HTTP/1.1
+GET /concerts/seats/:id HTTP/1.1
 Host: {{url}}
 ```
 
@@ -210,7 +220,8 @@ Content-Type: application/json
   "data": [
     {
         seatId: 1,
-        consertId: 1,
+        concert
+      Id: 1,
         price: 50000,
         payment: "N"
     }
@@ -229,11 +240,8 @@ Content-Type: application/json
 ```
 
 ### 사용자 잔액 조회
-`GET /amount/:id`
+`GET /payment/balance/:id`
 - 사용자 잔액 조회
-
-**Authorization**  
-`Bearer {userToken}`
 
 **Parameter**
 | 키 | 타입 | 설명 |
@@ -242,7 +250,7 @@ Content-Type: application/json
 
 **Example Request**
 ```
-GET /amount/12 HTTP/1.1
+GET /payment/balance/12 HTTP/1.1
 Host: {{url}}
 ```
 
@@ -273,11 +281,8 @@ Content-Type: application/json
 ```
 
 ### 사용자 잔액 충전
-`PATCH /amount/charge`
+`PATCH /payment/charge`
 - 사용자 잔액 조회
-
-**Authorization**  
-`Bearer {userToken}`
 
 **Request Body**
 | 키 | 타입 | 설명 |
@@ -287,7 +292,7 @@ Content-Type: application/json
 
 **Example Request**
 ```
-PATCH /amount/charge HTTP/1.1
+PATCH /payment/charge HTTP/1.1
 Host: {{url}}
 Content-Type: application/json
 Content-Length: 36
@@ -325,23 +330,26 @@ Content-Type: application/json
 ```
 
 ### 사용자 토큰 발급
-`POST /token/issu`
+`POST /auth/token`
 - 사용자 토큰 발급
 
 **Request Body**
 | 키 | 타입 | 설명 |
 | --- | --- | --- |
-| id | number | 사용자ID |
+| userId | number | 사용자ID |
+| concertId | number | 사용자ID |
 
 **Example Request**
 ```
-POST /token/issu HTTP/1.1
+POST /auth/token HTTP/1.1
 Host: {{url}}
 Content-Type: application/json
 Content-Length: 39
 
 {
-    userId: 12
+    userId: 12,
+    concert
+  Id: 1
 }
 ```
 
@@ -372,7 +380,7 @@ Content-Type: application/json
 ```
 
 ### 좌석예약
-`POST /reservation/seat`
+`POST /concerts/seats/reservation`
 - 좌석 임시 예약
 
 **Authorization**  
@@ -382,7 +390,7 @@ Content-Type: application/json
 | 키 | 타입 | 설명 |
 | --- | --- | --- |
 | userId | number | 사용자ID |
-| consertId | number | 콘서트ID |
+| concertId | number | 콘서트ID |
 | seatId | number | 좌석ID |
 
 **Example Request**
@@ -394,7 +402,7 @@ Content-Length: 56
 
 {
     userId: 12,
-    consertId: 1,
+    concertId: 1,
     seatId: 11
 }
 ```
@@ -409,7 +417,7 @@ Content-Type: application/json
   "message" : "success",
   "data": {
     userId: 12,
-    consertId: 1,
+    concertId: 1,
     seatId: 11,
     reservationDate: "2024-07-03 11:46:23"
   }
@@ -437,7 +445,7 @@ Content-Type: application/json
 ```
 
 ### 결제
-`POST /consert/payment`
+`POST /payment`
 - 콘서트 좌석 결제
 
 **Authorization**  
@@ -447,7 +455,7 @@ Content-Type: application/json
 | 키 | 타입 | 설명 |
 | --- | --- | --- |
 | userId | number | 사용자ID |
-| consertId | number | 콘서트ID |
+| concertId | number | 콘서트ID |
 | seatId | number | 좌석ID |
 
 **Example Request**
@@ -459,7 +467,7 @@ Content-Length: 56
 
 {
     userId: 12,
-    consertId: 1,
+    concertId: 1,
     seatId: 11
 }
 ```
@@ -475,10 +483,10 @@ Content-Type: application/json
   "data": {
     paymentId; 1,
     userId: 12,
-    consertId: 1,
+    concertId: 1,
     seatId: 11,
-    consertName: "에스파 콘서트",
-    consertDate: "2024-07-08",
+    concertName: "에스파 콘서트",
+    concertDate: "2024-07-08",
     price: 50000,
     paymentDate: "2024-07-03"
   }
