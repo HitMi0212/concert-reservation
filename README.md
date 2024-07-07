@@ -92,10 +92,77 @@ sequenceDiagram
 ```
 
 ## ERD
-![alt text](HHPLUS.png)
+```
+erDiagram
+    USER {
+        INT id PK "AutoIncrement"
+        CHAR name
+        DECIMAL balance "default: 0"
+    }
+
+    QUEUE {
+        INT id PK "AutoIncrement"
+        INT user_id FK
+        INT concert_id FK
+        INT position
+        DATETIME created_at "default: CURRENT_TIMESTAMP"
+    }
+
+	CONCERT {
+		INT id PK "AutoIncrement"
+		CHAR name
+        INT seats
+        DATETIME concert_date
+	}
+
+    SEAT {
+        INT id PK "AutoIncrement"
+        INT seat_number
+        DECIMAL price
+        ENUM status "AVAILABLE, RESERVED, COMPLETED"
+    }
+
+	SEAT_RESERVATION {
+        INT id PK "AutoIncrement"
+        INT concert_id FK
+        INT seat_id FK
+		INT user_id FK
+		DATETIME created_at "default: CURRENT_TIMESTAMP"
+        DATETIME deleted_at "NULLABLE"
+    }
+
+    PAYMENT {
+        INT id PK "AutoIncrement"
+        INT user_id FK
+		INT reservation_id FK
+		DATETIME created_at "default: CURRENT_TIMESTAMP"
+        DATETIME deleted_at "NULLABLE"
+    }
+
+    PAYMENT_META {
+        INT payment_id PK
+        INT user_id
+		INT concert_id
+        INT seat_id
+        CHAR concert_name
+        DATETIME concert_date
+        INT seat_number
+        INT price
+    }
+
+    USER ||--o{ QUEUE: has
+    USER ||--o{ SEAT_RESERVATION: makes
+    USER ||--o{ PAYMENT: performs
+    PAYMENT |o--|| SEAT_RESERVATION: includes
+    PAYMENT ||--|| PAYMENT_META: meta
+	CONCERT ||--o{ SEAT: has
+    CONCERT ||--o{ QUEUE: make
+	SEAT_RESERVATION }o--|| SEAT: has
+
+```
 
 ## API DOCS
-[POSTMAN API DOCS](https://documenter.getpostman.com/view/36695726/2sA3dxCrRx)
+🏋️‍♀️[POSTMAN API DOCS](https://documenter.getpostman.com/view/36695726/2sA3dxCrRx)
 
 ### 콘서트 목록 조회
 `GET /concerts`
