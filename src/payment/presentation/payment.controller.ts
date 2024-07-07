@@ -3,7 +3,7 @@ import { BalanceResponse } from '../dto/response/balance.response';
 
 @Controller('payment')
 export class PaymentController {
-  @Get('balace/:id')
+  @Get('balance/:id')
   findBalance(@Param('id') userId: number) {
     return new BalanceResponse(15000);
   }
