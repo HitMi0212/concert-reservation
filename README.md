@@ -14,6 +14,9 @@
 
 ## Sequence Diagram
 
+<details>
+<summary>Sequence Diagram</summary>
+
 ### 유저 토큰 발급 API
 
 ```mermaid
@@ -90,6 +93,8 @@ sequenceDiagram
   P-->>A: 유저 잔액 차감
   P-->>-U: 결제 정보 반환
 ```
+
+</details>
 
 ## ERD
 ```mermaid
@@ -170,6 +175,9 @@ erDiagram
 
 ## API DOCS
 🏋️‍♀️[POSTMAN API DOCS](https://documenter.getpostman.com/view/36695726/2sA3dxCrRx)
+
+<details>
+<summary>API DOCS</summary>
 
 ### 콘서트 목록 조회
 `GET /concerts`
@@ -576,3 +584,16 @@ Content-Type: application/json
   "error" : "해당 콘서트 좌석 정보가 없습니다."
 }
 ```
+
+</details>
+
+## Swagger
+
+![swagger_list](src/docs/image/swagger_list.png)
+
+<details>
+<summary>전체 캡쳐</summary>
+
+![swagger_all](src/docs/image/swagger_all.png)
+
+</details>
