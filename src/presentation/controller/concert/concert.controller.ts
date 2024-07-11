@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SeatStatus } from '../../dto/concert/enum/consert.seat.status.enum';
 import { ReservationRequestDto } from '../../dto/concert/request/concert.seat.reservation.request.dto';
 import { ConcertResponseDto } from '../../dto/concert/response/concert.response.dto';
@@ -6,9 +7,14 @@ import { ReservationResponseDto } from '../../dto/concert/response/concert.seat.
 import { SeatResponseDto } from '../../dto/concert/response/concert.seat.response.dto';
 
 @Controller('/concerts')
+@ApiTags('콘서트 API')
 export class ConcertController {
   constructor() {}
 
+  @ApiOperation({
+    summary: '예약 가능한 콘서트 목록 조회',
+  })
+  @ApiOkResponse({ type: ConcertResponseDto })
   @Get()
   async findAllConcert(): Promise<ConcertResponseDto[]> {
     return [
@@ -29,6 +35,10 @@ export class ConcertController {
     ];
   }
 
+  @ApiOperation({
+    summary: '입력한 날짜에 예약 가능한 콘서트 목록 조회',
+  })
+  @ApiOkResponse({ type: ConcertResponseDto })
   @Get(':date')
   async findAllConcertByDate(
     @Param('date') date: string,
@@ -44,6 +54,10 @@ export class ConcertController {
     ];
   }
 
+  @ApiOperation({
+    summary: '예약 가능한 콘서트 좌석 조회',
+  })
+  @ApiOkResponse({ type: ConcertResponseDto })
   @Get('/seats/:id')
   async findConcertSeat(
     @Param('id') concertId: number,
@@ -73,6 +87,10 @@ export class ConcertController {
     ];
   }
 
+  @ApiOperation({
+    summary: '선택한 좌석 예약',
+  })
+  @ApiOkResponse({ type: ConcertResponseDto })
   @Post('/seats/reservation')
   async seatReservation(
     @Body()
