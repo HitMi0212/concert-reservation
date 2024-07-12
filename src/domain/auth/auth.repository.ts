@@ -1,13 +1,16 @@
+import { Token } from './auth.model';
 import { AuthEntity } from './entity/auth.entity';
 
 export interface AuthRepository {
-  createToken(userId: string, concertId: number): Promise<AuthEntity>;
+  findByTokenId(tokenId: number): Promise<Token>;
 
-  findByTokenId(tokenId: number): Promise<AuthEntity>;
+  findActiveToken(): Promise<Token[]>;
 
-  extensionToken(tokenId: number): Promise<AuthEntity>;
+  findWaitingToken(limit: number): Promise<Token[]>;
 
-  validateToken(tokenId: number): Promise<AuthEntity>;
+  findExpiredActiveToken(): Promise<Token[]>;
 
-  expireToken(tokenId: number): Promise<AuthEntity>;
+  save(token: AuthEntity): Promise<Token>;
+
+  saveAll(tokens: Token[]): Promise<Token[]>;
 }

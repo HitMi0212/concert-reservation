@@ -1,4 +1,3 @@
-import { TokenStatusEnum } from '../../../presentation/dto/auth/enum/auth.enum';
 import {
   Column,
   CreateDateColumn,
@@ -11,16 +10,16 @@ export class AuthEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'uuid' })
-  user_id: string;
+  @Column({ name: 'user_id', type: 'uuid' })
+  userId: string;
 
   @Column()
-  concert_id: number;
+  status: TokenStatus;
 
-  @Column()
-  status: TokenStatusEnum;
-
-  @CreateDateColumn({ type: 'datetime' })
+  @CreateDateColumn({
+    name: 'expired_at',
+    type: 'datetime',
+  })
   expiredAt: Date;
 
   constructor(props?: AuthEntityProp) {
@@ -30,8 +29,13 @@ export class AuthEntity {
 
 export type AuthEntityProp = {
   id: number;
-  user_id: string;
-  concert_id: number;
-  status: TokenStatusEnum;
+  userId: string;
+  status: TokenStatus;
   expiredAt: Date;
 };
+
+export enum TokenStatus {
+  WAIT = 'WAIT',
+  ACTIVATE = 'ACTIVATE',
+  EXPIRED = 'EXPIRED',
+}
