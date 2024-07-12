@@ -5,8 +5,8 @@ export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'char' })
-  user_name: string;
+  @Column({ name: 'user_name', type: 'char' })
+  userName: string;
 
   @Column({ type: 'decimal', default: 0 })
   balance: number;
@@ -18,6 +18,6 @@ export class UserEntity {
 
 export type UserEntityProp = {
   id: string;
-  user_name: string | null;
+  userName: string;
   balance: number;
 };

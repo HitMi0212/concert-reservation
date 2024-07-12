@@ -1,7 +1,8 @@
 import { UserEntity } from './entity/user.entity';
+import { User } from './user.model';
 
 export interface UserRepository {
-  findByUserId(id: string): Promise<UserEntity>;
+  findByUserId(id: string): Promise<User>;
 
-  saveBalance(userInfo: UserEntity): Promise<UserEntity>;
+  saveUser(userInfo: UserEntity): Promise<User>;
 }
