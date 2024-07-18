@@ -6,7 +6,7 @@ import { TokenFacade } from 'src/application/auth.token.facade';
 export class TokenExpireScheduler {
   constructor(private readonly tokenFacade: TokenFacade) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async expireTokens() {
     await this.tokenFacade.expireActiveToken();
   }

@@ -6,7 +6,7 @@ import { TokenFacade } from 'src/application/auth.token.facade';
 export class TokenActiveScheduler {
   constructor(private readonly tokenFacade: TokenFacade) {}
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async activeTokens() {
     await this.tokenFacade.activeWaitingToken();
   }
