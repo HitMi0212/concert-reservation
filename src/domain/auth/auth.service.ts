@@ -56,6 +56,16 @@ export class AuthService {
     return token;
   }
 
+  async extensionToken(
+    tokenId: number,
+    _manager?: EntityManager,
+  ): Promise<AuthEntity> {
+    const token: AuthEntity = await this.getToken(tokenId, _manager);
+    token.extension();
+
+    return await this.authRepository.save(token, _manager);
+  }
+
   async expireToken(
     tokenId: number,
     _manager?: EntityManager,
