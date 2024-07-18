@@ -17,9 +17,6 @@ export class AuthEntity {
   concertDetailId: number;
 
   @Column()
-  positon: number;
-
-  @Column()
   status: TokenStatus;
 
   @CreateDateColumn({
@@ -51,7 +48,6 @@ export type AuthEntityProp = {
   id?: number;
   userId: string;
   concertDetailId: number;
-  positon?: number;
   status: TokenStatus;
   expiredAt?: Date;
 };
