@@ -1,28 +1,31 @@
+import { NotAcceptableException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '../../presentation/controller/auth/auth.controller';
 import { TokenStatusEnum } from '../../presentation/dto/auth/enum/auth.enum';
 import { AuthService } from './auth.service';
-import { AuthEntity } from './entity/auth.entity';
-import { NotAcceptableException, NotFoundException } from '@nestjs/common';
+import { AuthEntity, TokenStatus } from './entity/auth.entity';
+import { ConcertRepository } from '../concert/concert.repository';
+import { AuthRepository } from './auth.repository';
 
 const tokenEntity = new AuthEntity({
   id: 1,
-  user_id: '1',
-  concert_id: 1,
-  status: TokenStatusEnum.WAIT,
+  userId: '1',
+  concertId: 1,
+  positon: 2,
+  status: TokenStatus.WAIT,
   expiredAt: new Date('2024-07-11 22:05:00'),
 });
 
 describe('AuthService', () => {
   let service: AuthService;
+  let authRepository: jest.Mocked<AuthRepository>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
       providers: [
         AuthService,
         {
-          provide: AuthService,
+          provide: AuthRepository,
           useValue: {
             findByTokenId: jest.fn().mockResolvedValue(tokenEntity),
             createToken: jest.fn().mockResolvedValue({

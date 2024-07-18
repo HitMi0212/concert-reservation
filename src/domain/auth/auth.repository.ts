@@ -1,16 +1,22 @@
-import { Token } from './auth.model';
-import { AuthEntity } from './entity/auth.entity';
+import { AuthEntity } from 'src/infrastructure/auth/auth.entity';
+import { EntityManager } from 'typeorm';
 
 export interface AuthRepository {
-  findByTokenId(tokenId: number): Promise<Token>;
+  findByTokenId(tokenId: number, _manager?: EntityManager): Promise<AuthEntity>;
 
-  findActiveToken(): Promise<Token[]>;
+  findActiveToken(_manager?: EntityManager): Promise<AuthEntity[]>;
 
-  findWaitingToken(limit: number): Promise<Token[]>;
+  findWaitingToken(
+    limit: number,
+    _manager?: EntityManager,
+  ): Promise<AuthEntity[]>;
 
-  findExpiredActiveToken(): Promise<Token[]>;
+  findExpiredActiveToken(_manager?: EntityManager): Promise<AuthEntity[]>;
 
-  save(token: AuthEntity): Promise<Token>;
+  save(token: AuthEntity, _manager?: EntityManager): Promise<AuthEntity>;
 
-  saveAll(tokens: Token[]): Promise<Token[]>;
+  saveAll(
+    tokens: AuthEntity[],
+    _manager?: EntityManager,
+  ): Promise<AuthEntity[]>;
 }

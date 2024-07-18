@@ -13,6 +13,12 @@ export class AuthEntity {
   @Column({ name: 'user_id', type: 'uuid' })
   userId: string;
 
+  @Column({ name: 'concert_detail_id' })
+  concertDetailId: number;
+
+  @Column()
+  positon: number;
+
   @Column()
   status: TokenStatus;
 
@@ -25,13 +31,29 @@ export class AuthEntity {
   constructor(props?: AuthEntityProp) {
     Object.assign(this, props);
   }
+
+  active(): void {
+    this.extension();
+    this.status = TokenStatus.ACTIVATE;
+  }
+
+  extension(): void {
+    // 만료시간 현재 시간에서 5분 후로 설정
+    this.expiredAt = new Date(Date.now() + 5 * 60 * 1000);
+  }
+
+  expire(): void {
+    this.status = TokenStatus.EXPIRED;
+  }
 }
 
 export type AuthEntityProp = {
-  id: number;
+  id?: number;
   userId: string;
+  concertDetailId: number;
+  positon?: number;
   status: TokenStatus;
-  expiredAt: Date;
+  expiredAt?: Date;
 };
 
 export enum TokenStatus {

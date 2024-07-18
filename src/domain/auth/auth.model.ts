@@ -1,14 +1,18 @@
-import { TokenStatus } from './entity/auth.entity';
+import { AuthEntity } from 'src/infrastructure/auth/auth.entity';
 
 export class Token {
   id: number;
   userId: string;
+  concertDetailId: number;
+  positon: number;
   status: TokenStatus;
   expiredAt: Date;
 
   constructor(props: {
     id?: number;
     userId: string;
+    concertDetailId: number;
+    positon?: number;
     status: TokenStatus;
     expiredAt?: Date;
   }) {
@@ -29,4 +33,14 @@ export class Token {
   expire(): void {
     this.status = TokenStatus.EXPIRED;
   }
+
+  toInfra(): AuthEntity {
+    return new AuthEntity(this);
+  }
+}
+
+export enum TokenStatus {
+  WAIT = 'WAIT',
+  ACTIVATE = 'ACTIVATE',
+  EXPIRED = 'EXPIRED',
 }
