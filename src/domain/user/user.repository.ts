@@ -1,8 +1,8 @@
-import { UserEntity } from './entity/user.entity';
-import { User } from './user.model';
+import { UserEntity } from 'src/infrastructure/user/user.entity';
+import { EntityManager } from 'typeorm';
 
 export interface UserRepository {
-  findByUserId(id: string): Promise<User>;
+  findByUserId(userId: string): Promise<UserEntity>;
 
-  saveUser(userInfo: UserEntity): Promise<User>;
+  saveUser(userInfo: UserEntity, _manager: EntityManager): Promise<UserEntity>;
 }

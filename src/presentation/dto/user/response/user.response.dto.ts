@@ -8,19 +8,13 @@ export class UserResponseDto {
 
   @ApiProperty()
   @IsString()
-  name: string;
+  userName: string;
 
   @ApiProperty()
   @IsDecimal()
   balance: number;
 
-  constructor(args: UserResponseProp) {
+  constructor(args: { id: string; userName: string; balance: number }) {
     Object.assign(this, args);
   }
 }
-
-type UserResponseProp = {
-  id: string;
-  name: string;
-  balance: number;
-};

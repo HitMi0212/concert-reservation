@@ -1,8 +1,15 @@
 import { BadRequestException } from '@nestjs/common';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-export class User {
+@Entity('user')
+export class UserEntity {
+  @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @Column({ name: 'user_name', type: 'char' })
   userName: string;
+
+  @Column({ type: 'decimal', default: 0 })
   balance: number;
 
   constructor(props: { id?: string; userName: string; balance: number }) {

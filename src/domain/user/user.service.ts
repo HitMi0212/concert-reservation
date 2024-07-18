@@ -1,15 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { UserEntity } from './entity/user.entity';
-import { UserRequstDto } from 'src/presentation/dto/user/request/user.request.dto';
+import { UserEntity } from 'src/infrastructure/user/user.entity';
 import { UserRepository } from './user.repository';
-import { User } from './user.model';
+import { EntityManager } from 'typeorm';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async findUserById(id: string): Promise<User> {
-    const user: User = await this.userRepository.findByUserId(id);
+  async findUserById(id: string): Promise<UserEntity> {
+    const user: UserEntity = await this.userRepository.findByUserId(id);
 
     if (!user) {
       throw new NotFoundException('사용자 정보가 존재하지 않습니다.');
@@ -18,10 +17,25 @@ export class UserService {
     return user;
   }
 
-  async chargeUserBalance(chargeInfo: UserRequstDto): Promise<UserEntity> {
-    const user: User = await this.findUserById(chargeInfo.userId);
-    user.chargeBalance(chargeInfo.amount);
+  async chargeUserBalance(
+    userId: string,
+    amount: number,
+    _manager: EntityManager,
+  ): Promise<UserEntity> {
+    const user: UserEntity = await this.findUserById(userId);
+    user.chargeBalance(amount);
 
-    return await this.userRepository.saveUser(user);
+    return await this.userRepository.saveUser(user, _manager);
+  }
+
+  async useUserBalance(
+    userId: string,
+    amount: number,
+    _manager: EntityManager,
+  ): Promise<UserEntity> {
+    const user: UserEntity = await this.findUserById(userId);
+    user.useBalance(amount);
+
+    return await this.userRepository.saveUser(user, _manager);
   }
 }
