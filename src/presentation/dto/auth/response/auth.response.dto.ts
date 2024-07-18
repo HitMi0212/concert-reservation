@@ -1,5 +1,5 @@
 import { IsDate, IsEnum, IsNumber, IsUUID } from 'class-validator';
-import { TokenStatusEnum } from '../enum/auth.enum';
+import { TokenStatus } from 'src/infrastructure/auth/auth.entity';
 
 export class TokenResponseDto {
   @IsNumber()
@@ -9,23 +9,21 @@ export class TokenResponseDto {
   userId: string;
 
   @IsNumber()
-  concertId: number;
+  concertDetailId: number;
 
-  @IsEnum(TokenStatusEnum)
-  status: TokenStatusEnum;
+  @IsEnum(TokenStatus)
+  status: TokenStatus;
 
   @IsDate()
   expiredAt: Date;
 
-  constructor(args: TokenResponseProp) {
+  constructor(args?: {
+    id: number;
+    userId: string;
+    concertDetailId: number;
+    status: TokenStatus;
+    expiredAt: Date;
+  }) {
     Object.assign(this, args);
   }
 }
-
-type TokenResponseProp = {
-  id: number;
-  userId: string;
-  concertId: number;
-  status: TokenStatusEnum;
-  expiredAt: Date;
-};
