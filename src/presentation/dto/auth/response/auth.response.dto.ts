@@ -1,5 +1,5 @@
 import { IsDate, IsEnum, IsNumber, IsUUID } from 'class-validator';
-import { AuthEntity, TokenStatus } from 'src/infrastructure/auth/auth.entity';
+import { TokenStatus } from 'src/infrastructure/auth/auth.entity';
 
 export class TokenResponseDto {
   @IsNumber()
