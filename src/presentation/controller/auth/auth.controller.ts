@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Headers, Patch, Post } from '@nestjs/common';
-import { TokenStatusEnum } from '../../dto/auth/enum/auth.enum';
+import { TokenFacade } from 'src/application/auth.token.facade';
 import { TokenRequestDto } from '../../dto/auth/request/auth.request.dto';
 import { TokenResponseDto } from '../../dto/auth/response/auth.response.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -7,7 +7,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 @Controller('auth')
 @ApiTags('토큰 API')
 export class AuthController {
-  // constructor(private readonly queueService: QueueService) {}
+  constructor(private readonly tokenFacade: TokenFacade) {}
 
   @ApiOperation({
     summary: '대기열 토큰 생성',
@@ -17,13 +17,12 @@ export class AuthController {
   async createToken(
     @Body() requestBody: TokenRequestDto,
   ): Promise<TokenResponseDto> {
-    return new TokenResponseDto({
-      id: 1,
-      userId: '12',
-      concertId: 1,
-      status: TokenStatusEnum.WAIT,
-      expiredAt: new Date('2024-07-31'),
-    });
+    return new TokenResponseDto(
+      await this.tokenFacade.IssueWaitingToken(
+        requestBody.userId,
+        requestBody.concertId,
+      ),
+    );
   }
 
   @ApiOperation({
@@ -34,13 +33,9 @@ export class AuthController {
   async extensionToken(
     @Headers('authorization') tokenId: number,
   ): Promise<TokenResponseDto> {
-    return new TokenResponseDto({
-      id: tokenId,
-      userId: '12',
-      concertId: 1,
-      status: TokenStatusEnum.WAIT,
-      expiredAt: new Date('2024-07-31'),
-    });
+    return new TokenResponseDto(
+      await this.tokenFacade.extensionWaitingToken(tokenId),
+    );
   }
 
   @ApiOperation({
@@ -51,13 +46,9 @@ export class AuthController {
   async validateToken(
     @Headers('authorization') tokenId: number,
   ): Promise<TokenResponseDto> {
-    return new TokenResponseDto({
-      id: tokenId,
-      userId: '12',
-      concertId: 1,
-      status: TokenStatusEnum.WAIT,
-      expiredAt: new Date('2024-07-31'),
-    });
+    return new TokenResponseDto(
+      await this.tokenFacade.validateWaitingToken(tokenId),
+    );
   }
 
   @ApiOperation({
@@ -68,12 +59,8 @@ export class AuthController {
   async expireToken(
     @Headers('authorization') tokenId: number,
   ): Promise<TokenResponseDto> {
-    return new TokenResponseDto({
-      id: tokenId,
-      userId: '12',
-      concertId: 1,
-      status: TokenStatusEnum.EXPIRED,
-      expiredAt: new Date('2024-07-12'),
-    });
+    return new TokenResponseDto(
+      await this.tokenFacade.expireWaitingToken(tokenId),
+    );
   }
 }
