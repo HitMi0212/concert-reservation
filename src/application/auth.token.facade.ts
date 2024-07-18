@@ -42,6 +42,22 @@ export class TokenFacade {
     return await this.authService.validateToken(tokenId);
   }
 
+  /**
+   * 대기열 토큰 연장
+   * @Param tokenId: number
+   */
+  async extensionWaitingToken(tokenId: number): Promise<AuthEntity> {
+    return await this.authService.extensionToken(tokenId);
+  }
+
+  /**
+   * 대기열 토큰 만료
+   * @Param tokenId: number
+   */
+  async expireWaitingToken(tokenId: number): Promise<AuthEntity> {
+    return await this.authService.expireToken(tokenId);
+  }
+
   // 대기열에서 비어있는 만큼 활성화
   async activeWaitingToken(): Promise<AuthEntity[]> {
     const result: AuthEntity[] = await this.authService.activeToken();
