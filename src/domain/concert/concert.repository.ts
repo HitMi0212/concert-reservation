@@ -1,15 +1,20 @@
-import { SeatResponseDto } from '../../presentation/dto/concert/response/concert.seat.response.dto';
-import { ConcertResponseDto } from '../../presentation/dto/concert/response/concert.response.dto';
-import { ReservationResponseDto } from '../../presentation/dto/concert/response/concert.seat.reservation.response.dto';
+import { EntityManager } from 'typeorm';
+import { Concert } from './model/concert';
+import { Seat } from './model/seat';
+import { SeatEntity } from 'src/infrastructure/concert/concert.seat.entity';
+import { Reservation } from './model/reservation';
+import { ReservationEntity } from 'src/infrastructure/concert/consert.seat.reservation.entity';
 
 export interface ConcertRepository {
-  findAvailableConcert(): Promise<ConcertResponseDto[]>;
+  findAvailableConcert(date?: string): Promise<Concert[]>;
 
-  findConcertByDate(date: string): Promise<ConcertResponseDto[]>;
+  findConcertSeat(concertDetailId: number): Promise<Seat[]>;
 
-  findConcertSeat(concertId: number): Promise<SeatResponseDto[]>;
+  findConcertSeatById(seatId: number): Promise<Seat>;
 
-  findConcertSeatById(concertId: number): Promise<SeatResponseDto>;
-
-  seatReservation(seatId: number): Promise<ReservationResponseDto>;
+  seatReservation(
+    seat: SeatEntity,
+    reservation: ReservationEntity,
+    _manager: EntityManager,
+  ): Promise<Reservation>;
 }

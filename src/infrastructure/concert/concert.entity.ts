@@ -14,15 +14,15 @@ export class ConcertDetailEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
-  concert_id: number;
+  @Column({ name: 'concert_id' })
+  concertId: number;
 
   @Column()
   seats: number;
 
-  @Column({ type: 'datetime' })
-  concert_date: Date;
+  @Column({ name: 'concert_date', type: 'datetime' })
+  concertDate: Date;
 
-  @Column({ type: 'datetime' })
-  reservation_date: Date;
+  @Column({ name: 'reservation_date', type: 'datetime' })
+  reservationDate: Date;
 }

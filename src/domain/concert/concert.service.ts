@@ -3,18 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConcertResponseDto } from '../../presentation/dto/concert/response/concert.response.dto';
-import { ReservationResponseDto } from '../../presentation/dto/concert/response/concert.seat.reservation.response.dto';
-import { SeatResponseDto } from '../../presentation/dto/concert/response/concert.seat.response.dto';
+import { EntityManager } from 'typeorm';
 import { ConcertRepository } from './concert.repository';
-import { SeatStatus } from './entity/concert.seat.entity';
+import { Concert } from './model/concert';
+import { Reservation } from './model/reservation';
+import { Seat, SeatStatus } from './model/seat';
 
 @Injectable()
 export class ConcertService {
   constructor(private readonly concertRepository: ConcertRepository) {}
 
-  async findAvailableConcert(): Promise<ConcertResponseDto[]> {
-    const concerts: ConcertResponseDto[] =
+  async findAvailableConcert(): Promise<Concert[]> {
+    const concerts: Concert[] =
       await this.concertRepository.findAvailableConcert();
 
     if (!concerts || !concerts.length) {
@@ -24,9 +24,9 @@ export class ConcertService {
     return concerts;
   }
 
-  async findConcertByDate(date: string): Promise<ConcertResponseDto[]> {
-    const concerts: ConcertResponseDto[] =
-      await this.concertRepository.findConcertByDate(date);
+  async findConcertByDate(date: string): Promise<Concert[]> {
+    const concerts: Concert[] =
+      await this.concertRepository.findAvailableConcert(date);
 
     if (!concerts || !concerts.length) {
       throw new NotFoundException('해당 날짜에 예약가능한 콘서트가 없습니다.');
@@ -35,9 +35,9 @@ export class ConcertService {
     return concerts;
   }
 
-  async findConcertSeat(concertId: number): Promise<SeatResponseDto[]> {
-    const seats: SeatResponseDto[] =
-      await this.concertRepository.findConcertSeat(concertId);
+  async findConcertSeat(concertDetailId: number): Promise<Seat[]> {
+    const seats: Seat[] =
+      await this.concertRepository.findConcertSeat(concertDetailId);
 
     if (!seats || !seats.length) {
       throw new NotFoundException('예약가능한 좌석이 없습니다.');
@@ -46,9 +46,12 @@ export class ConcertService {
     return seats;
   }
 
-  async seatReservation(seatId: number): Promise<ReservationResponseDto> {
-    const seat: SeatResponseDto =
-      await this.concertRepository.findConcertSeatById(seatId);
+  async seatReservation(
+    seatId: number,
+    userId: string,
+    _manager: EntityManager,
+  ): Promise<Reservation> {
+    const seat: Seat = await this.concertRepository.findConcertSeatById(seatId);
 
     if (!seat) {
       throw new NotFoundException('예약가능한 좌석이 없습니다.');
@@ -56,8 +59,19 @@ export class ConcertService {
       throw new ConflictException('이미 선택된 좌석입니다.');
     }
 
-    const reservation: ReservationResponseDto =
-      await this.concertRepository.seatReservation(seatId);
+    seat.reservation();
+
+    const newReservation = new Reservation({
+      seatId,
+      userId,
+    });
+
+    const reservation: Reservation =
+      await this.concertRepository.seatReservation(
+        Seat.toInfra(seat),
+        Reservation.toInfra(newReservation),
+        _manager,
+      );
 
     return reservation;
   }

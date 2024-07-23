@@ -11,11 +11,11 @@ export class SeatEntity {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column()
-  concert_id: number;
+  @Column({ name: 'concert_id' })
+  concertDetailId: number;
 
-  @Column()
-  seat_number: number;
+  @Column({ name: 'seat_number' })
+  seatNumber: number;
 
   @Column()
   price: number;
@@ -24,4 +24,14 @@ export class SeatEntity {
     enum: SeatStatus,
   })
   status: SeatStatus;
+
+  constructor(props?: {
+    id?: number;
+    concertDetailId: number;
+    seatNumber?: number;
+    price?: number;
+    status?: SeatStatus;
+  }) {
+    Object.assign(this, props);
+  }
 }
