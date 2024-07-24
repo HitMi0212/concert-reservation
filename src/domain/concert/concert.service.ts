@@ -75,4 +75,23 @@ export class ConcertService {
 
     return reservation;
   }
+
+  async saveSeat(seat: Seat, _manager: EntityManager): Promise<Seat> {
+    return await this.concertRepository.saveSeat(Seat.toInfra(seat), _manager);
+  }
+
+  async findReservation(
+    userId: string,
+    reservationId: number,
+  ): Promise<Reservation> {
+    return await this.concertRepository.findReservation(userId, reservationId);
+  }
+
+  async findConcertByDetailId(concertId: number): Promise<Concert> {
+    return await this.concertRepository.findConcertByDetailId(concertId);
+  }
+
+  async findConcertSeatById(seatId: number): Promise<Seat> {
+    return await this.concertRepository.findConcertSeatById(seatId);
+  }
 }

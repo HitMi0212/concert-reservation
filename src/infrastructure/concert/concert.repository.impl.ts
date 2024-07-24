@@ -89,4 +89,39 @@ export class ConcertRepositoryImpl implements ConcertRepository {
 
     return Reservation.mappingEntity(result);
   }
+
+  async saveSeat(seat: SeatEntity, _manager: EntityManager): Promise<Seat> {
+    const manager = _manager ?? this.seatRepository.manager;
+
+    return Seat.mappingEntity(await manager.save(seat));
+  }
+
+  async findReservation(
+    userId: string,
+    reservationId: number,
+  ): Promise<Reservation> {
+    return Reservation.mappingEntity(
+      await this.reservationRepository.manager.findOneBy(ReservationEntity, {
+        id: reservationId,
+        userId: userId,
+      }),
+    );
+  }
+
+  async findConcertByDetailId(concertDetailId: number): Promise<Concert> {
+    const detail: ConcertDetailEntity[] =
+      await this.concertDetailRepository.manager.findBy(ConcertDetailEntity, {
+        id: concertDetailId,
+      });
+
+    let concert: ConcertEntity | null = null;
+
+    if (detail) {
+      concert = await this.concertRepository.manager.findOneBy(ConcertEntity, {
+        id: detail[0].concertId,
+      });
+    }
+
+    return Concert.mappingEntity(concert, detail);
+  }
 }

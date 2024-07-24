@@ -17,4 +17,10 @@ export interface ConcertRepository {
     reservation: ReservationEntity,
     _manager: EntityManager,
   ): Promise<Reservation>;
+
+  saveSeat(seat: SeatEntity, _manager: EntityManager): Promise<Seat>;
+
+  findReservation(userId: string, reservationId: number): Promise<Reservation>;
+
+  findConcertByDetailId(concertDetailId: number): Promise<Concert>;
 }
