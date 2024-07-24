@@ -19,7 +19,7 @@ export class Reservation {
     Object.assign(this, props);
   }
 
-  static mappingEntity(reservation: ReservationEntity): Reservation {
+  static mappingEntity(reservation: ReservationEntity | null): Reservation {
     if (!reservation) {
       return new Reservation();
     }

@@ -19,7 +19,7 @@ export class Concert {
   }
 
   static mappingEntity(
-    concert: ConcertEntity,
+    concert: ConcertEntity | null,
     details: ConcertDetailEntity[],
   ): Concert {
     if (!concert) {
