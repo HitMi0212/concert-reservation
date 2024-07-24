@@ -24,7 +24,7 @@ export class TokenFacade {
     concertDetailId: number,
   ): Promise<AuthEntity> {
     await this.userService.findUserById(userId);
-    await this.concertService.findConcertDetailById(concertDetailId);
+    await this.concertService.findConcertByDetailId(concertDetailId);
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
